@@ -84,6 +84,17 @@ mkdir -p "$ROOTFS/etc/nixos"
 info "Copying configuration to $ROOTFS/etc/nixos/configuration.nix"
 cp "$CONFIG" "$ROOTFS/etc/nixos/configuration.nix"
 
+# Copy os-release from the system derivation
+# nspawn quirk: it needs to see a "os rootfs tree". /etc gets overwritten by nix
+info "Symlinking os-release into rootfs"
+mkdir -p "$ROOTFS/usr/lib"
+cp $(readlink -f "$SYSTEM_PATH/etc/os-release") "$ROOTFS/usr/lib/os-release"
+
+# Symlink init so the container can boot
+info "Symlinking /sbin/init into rootfs"
+mkdir -p "$ROOTFS/sbin"
+ln -sf /nix/var/nix/profiles/system/init "$ROOTFS/sbin/init"
+
 # Create bind mount destinations inside rootfs
 info "Creating bind mount destinations in rootfs"
 mkdir -p "$ROOTFS/nix/var/nix/profiles"
@@ -100,7 +111,7 @@ cat > "$NSPAWN_FILE" <<EOF
 Parameters=/nix/var/nix/profiles/system/init
 
 [Files]
-Bind=/nix/var/nix/gcroots/per-container/$CONTAINER_ID:/nix/var/nix/profiles
+Bind=/nix/var/nix/gcroots/per-container/$CONTAINER_ID:/nix/var/nix/profiles:idmap
 Bind=/nix/var/nix/daemon-socket/socket
 BindReadOnly=/nix/store
 BindReadOnly=/nix/var/nix/db

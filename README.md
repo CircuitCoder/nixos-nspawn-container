@@ -38,14 +38,22 @@ Create a configuration file based on the following template:
 }
 ```
 
-Running `create.sh <configuration.nix>` will prints a UUID, which is the ID of the new container. You can now manage the container with `machinectl`. Try `machinectl list`. Before starting the container, you may want to edit the generated configuration file at `/etc/systemd/nspawn/<NAME>.nspawn`.
+Running `create.sh <configuration.nix>` will prints a UUID, which is the ID of the new container. You can now manage the container with `machinectl`. Before starting the container, you may want to edit the generated configuration file at `/etc/systemd/nspawn/<NAME>.nspawn`. Try `machinectl edit <NAME>`.
 
 Things that's not configured by the script but may be desirable:
 - Networking and port forward
-- PrivateUsers & PrivateUsersOwnership. See [systemd.nspawn doc](https://www.freedesktop.org/software/systemd/man/latest/systemd.nspawn.html#PrivateUsersOwnership=)
+- PrivateUsers & PrivateUsersOwnership. Because we just created our rootfs with the current user as owner, if we want UID namespace, nspawn needs to chown the rootfs. See [systemd.nspawn doc](https://www.freedesktop.org/software/systemd/man/latest/systemd.nspawn.html#PrivateUsersOwnership=)
+
+Use `systemctl start start systemd-nspawn@<NAME>.service` to start the container. Then you can see it in `machinectl list`.
 
 ## Caveats
 
 Since we're binding the daemon socket from the host, we have to disable the daemon in the container.
 
 Also, if your configuration file imports other files, you may need to manually copy / adjust the created configuration file in the rootfs at `/var/lib/machines/<NAME>`.
+
+The guest may not have any channel configured, so the first `nixos-rebuild` may fail. You can add the same channels as the host inside the container, but see the following caveat about the writability of the profile directory. Remember to `nix-channel --update`!
+
+Finally, we're using idmap mounts for the profile directory. This is not supported in older kernels and some filesystems (e.g. ZFS). If you cannot use idmap mounts, remove that from the nspwan config and choose the following options:
+- Disable UID namespace
+- Chmod 777 on the per-container profile directory from the host.
