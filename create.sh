@@ -84,6 +84,14 @@ mkdir -p "$ROOTFS/etc/nixos"
 info "Copying configuration to $ROOTFS/etc/nixos/configuration.nix"
 cp "$CONFIG" "$ROOTFS/etc/nixos/configuration.nix"
 
+# Create bind mount destinations inside rootfs
+info "Creating bind mount destinations in rootfs"
+mkdir -p "$ROOTFS/nix/var/nix/profiles"
+mkdir -p "$ROOTFS/nix/var/nix/daemon-socket"
+touch "$ROOTFS/nix/var/nix/daemon-socket/socket"
+mkdir -p "$ROOTFS/nix/store"
+mkdir -p "$ROOTFS/nix/var/nix/db"
+
 # Create the nspawn machine file
 info "Creating nspawn file: $NSPAWN_FILE"
 mkdir -p /etc/systemd/nspawn
