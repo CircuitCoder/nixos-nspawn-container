@@ -38,6 +38,10 @@ info() {
   fi
 }
 
+# Build the initial system derivation first, before creating any directories
+info "Building system from $CONFIG (channel: $CHANNEL)"
+SYSTEM_PATH="$(nix-build "$CHANNEL" -A system -I "nixos-config=$CONFIG" --no-out-link)"
+
 # Generate a unique container ID
 CONTAINER_ID="$(uuidgen)"
 echo "$CONTAINER_ID"
@@ -69,10 +73,6 @@ fi
 # Create gcroot directory
 info "Creating gcroot directory: $GCROOT"
 mkdir -p "$GCROOT"
-
-# Build the initial system derivation
-info "Building system from $CONFIG (channel: $CHANNEL)"
-SYSTEM_PATH="$(nix-build "$CHANNEL" -A system -I "nixos-config=$CONFIG" --no-out-link)"
 
 # Link the system derivation into the gcroot
 info "Linking system derivation to $GCROOT/system"

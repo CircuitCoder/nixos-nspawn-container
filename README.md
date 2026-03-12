@@ -7,7 +7,7 @@ These scripts creates a systemd-nspawn container from a initial NixOS configurat
 Create a configuration file based on the following template:
 
 ```nix
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   imports = [
@@ -34,7 +34,7 @@ Create a configuration file based on the following template:
   documentation.info.enable = lib.mkForce false;
   documentation.doc.enable = lib.mkForce false;
 
-  environment.noXlibs = true;
+  # system.stateVersion = "CHANGE ME!";
 }
 ```
 
