@@ -10,9 +10,13 @@ Create a configuration file based on the following template:
 { config, pkgs, ... }:
 
 {
+  imports = [
+    <nixpkgs/nixos/modules/profiles/minimal.nix>
+  ];
+
   boot.isContainer = true;
 
-  # Daemon socket is bound mounted from the host
+  # Daemon socket is bind mounted from the host
   systemd.services.nix-daemon.enable = false;
   systemd.sockets.nix-daemon.enable = false;
 
@@ -22,10 +26,23 @@ Create a configuration file based on the following template:
 
   # Force commands through the daemon
   environment.variables.NIX_REMOTE = "daemon";
+
+  # Disable some QoL features
+  documentation.enable = lib.mkForce false;
+  documentation.nixos.enable = lib.mkForce false;
+  documentation.man.enable = lib.mkForce false;
+  documentation.info.enable = lib.mkForce false;
+  documentation.doc.enable = lib.mkForce false;
+
+  environment.noXlibs = true;
 }
 ```
 
 Running `create.sh <configuration.nix>` will prints a UUID, which is the ID of the new container. You can now manage the container with `machinectl`. Try `machinectl list`. Before starting the container, you may want to edit the generated configuration file at `/etc/systemd/nspawn/<NAME>.nspawn`.
+
+Things that's not configured by the script but may be desirable:
+- Networking and port forward
+- PrivateUsers & PrivateUsersOwnership. See [systemd.nspawn doc](https://www.freedesktop.org/software/systemd/man/latest/systemd.nspawn.html#PrivateUsersOwnership=)
 
 ## Caveats
 
