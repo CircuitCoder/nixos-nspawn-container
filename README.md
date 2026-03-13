@@ -34,6 +34,8 @@ Create a configuration file based on the following template:
   documentation.info.enable = lib.mkForce false;
   documentation.doc.enable = lib.mkForce false;
 
+  system.activationScripts.specialfs = lib.mkForce "";
+
   # system.stateVersion = "CHANGE ME!";
 }
 ```

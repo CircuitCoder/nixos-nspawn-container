@@ -88,7 +88,7 @@ cp "$CONFIG" "$ROOTFS/etc/nixos/configuration.nix"
 # nspawn quirk: it needs to see a "os rootfs tree". /etc gets overwritten by nix
 info "Symlinking os-release into rootfs"
 mkdir -p "$ROOTFS/usr/lib"
-cp $(readlink -f "$SYSTEM_PATH/etc/os-release") "$ROOTFS/usr/lib/os-release"
+cp $(readlink -f "$GCROOT/system/etc/os-release") "$ROOTFS/usr/lib/os-release"
 
 # Symlink init so the container can boot
 info "Symlinking /sbin/init into rootfs"
